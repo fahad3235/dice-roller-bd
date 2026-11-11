@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dice Roller BD</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="head-row">
+      <div>
+        <h1 id="title" data-i18n="title">Dice Roller BD</h1>
+        <p id="subtitle" class="sub"></p>
+      </div>
+      <button id="langBtn" class="lang-btn" type="button">Bangla</button>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button class="tab active" data-tab="roll" role="tab" type="button"><span data-i18n="tab_roll">Roller</span></button>
+      <button class="tab" data-tab="presets" role="tab" type="button"><span data-i18n="tab_presets">Presets</span></button>
+      <button class="tab" data-tab="history" role="tab" type="button"><span data-i18n="tab_history">History</span></button>
+      <button class="tab" data-tab="guide" role="tab" type="button"><span data-i18n="tab_guide">Guide</span></button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- ============ ROLLER TAB ============ -->
+  <section id="tab-roll" class="panel">
+    <h2 data-i18n="quickTitle">Quick dice</h2>
+    <p class="hint" data-i18n="quickHint">Tap + to add a die to the pool, - to remove it.</p>
+    <div id="quickDice" class="quick-grid"></div>
+
+    <h2 data-i18n="poolTitle">Your pool</h2>
+    <p id="poolEmpty" class="hint"></p>
+    <div id="poolList" class="pool-list"></div>
+    <div class="row">
+      <label class="field"><span data-i18n="modifier">Modifier</span>
+        <input id="modifierInput" type="number" min="-99" max="99" value="0" inputmode="numeric">
+      </label>
+      <label class="field"><span data-i18n="mode">d20 mode</span>
+        <select id="modeSelect">
+          <option value="normal" data-i18n="mode_normal">Normal</option>
+          <option value="advantage" data-i18n="mode_advantage">Advantage</option>
+          <option value="disadvantage" data-i18n="mode_disadvantage">Disadvantage</option>
+        </select>
+      </label>
+    </div>
+    <p class="hint" data-i18n="modeNote">Advantage / disadvantage only applies to a single d20 roll (roll twice, keep the higher / lower).</p>
+    <p id="modeIgnored" class="warn" hidden></p>
+    <div class="row">
+      <button id="rollPoolBtn" class="btn primary" type="button" data-i18n="rollPoolBtn">Roll pool</button>
+      <button id="clearPoolBtn" class="btn" type="button" data-i18n="clearPoolBtn">Clear pool</button>
+    </div>
+
+    <h2 data-i18n="notationTitle">Dice notation</h2>
+    <div class="row">
+      <input id="notationInput" type="text" placeholder="e.g. 2d6+3, 4d6dl1, d20, 2d20kh1" autocomplete="off" spellcheck="false">
+      <button id="rollNotationBtn" class="btn primary" type="button" data-i18n="rollNotationBtn">Roll notation</button>
+    </div>
+    <p class="hint" data-i18n="notationHint">N = number of dice (1-20), S = sides (4, 6, 8, 10, 12, 20, 100 or %). dl/dh drops dice, kh/kl keeps dice, +N/-N adds a modifier.</p>
+    <p id="notationError" class="err" hidden></p>
+
+    <h2 data-i18n="resultTitle">Result</h2>
+    <div id="resultBox" class="result-box">
+      <p id="resultEmpty" class="hint"></p>
+      <div id="resultContent" hidden>
+        <p id="resultNotation" class="result-notation"></p>
+        <div id="dieFaces" class="die-faces"></div>
+        <p class="result-total"><span data-i18n="total">Total</span>: <strong id="resultTotal"></strong></p>
+        <p class="hint"><span data-i18n="range">Range</span>: <span id="resultRange"></span></p>
+        <p id="critBadge" class="crit" hidden></p>
+      </div>
+    </div>
+
+    <div class="row">
+      <input id="presetName" type="text" placeholder="Preset name (e.g. Fireball)" maxlength="60" autocomplete="off">
+      <button id="savePresetBtn" class="btn" type="button" data-i18n="savePresetBtn">Save current roll as preset</button>
+    </div>
+    <p id="savePresetMsg" class="ok" hidden></p>
+    <p id="savePresetNeed" class="err" hidden></p>
+  </section>
+
+  <!-- ============ PRESETS TAB ============ -->
+  <section id="tab-presets" class="panel" hidden>
+    <h2 data-i18n="presetsTitle">Saved presets</h2>
+    <p id="presetsEmpty" class="hint" hidden></p>
+    <div id="presetList" class="preset-list"></div>
+  </section>
+
+  <!-- ============ HISTORY TAB ============ -->
+  <section id="tab-history" class="panel" hidden>
+    <h2 data-i18n="statsTitle">Session stats</h2>
+    <div id="statsBox" class="stats-grid">
+      <div class="stat"><span data-i18n="statsRolls">Rolls</span><strong id="statRolls">0</strong></div>
+      <div class="stat"><span data-i18n="statsAvg">Average total</span><strong id="statAvg">-</strong></div>
+      <div class="stat"><span data-i18n="statsCommon">Most common total</span><strong id="statCommon">-</strong></div>
+      <div class="stat"><span data-i18n="statsDice">Dice rolled</span><strong id="statDice">-</strong></div>
+    </div>
+    <h2 data-i18n="historyTitle">Roll history</h2>
+    <p id="historyEmpty" class="hint" hidden></p>
+    <div id="historyList" class="history-list"></div>
+    <div class="row">
+      <button id="clearHistoryBtn" class="btn" type="button" data-i18n="clearHistoryBtn">Clear history</button>
+    </div>
+    <p id="clearedMsg" class="ok" hidden></p>
+
+    <h2 data-i18n="dataTitle">Your data</h2>
+    <div class="row">
+      <button id="exportBtn" class="btn" type="button" data-i18n="exportBtn">Export JSON</button>
+      <button id="importBtn" class="btn" type="button" data-i18n="importBtn">Import</button>
+    </div>
+    <textarea id="exportText" rows="4" readonly placeholder=""></textarea>
+    <textarea id="importText" rows="4" placeholder="Paste exported JSON here..."></textarea>
+    <p id="importOk" class="ok" hidden></p>
+    <p id="importFail" class="err" hidden></p>
+
+    <h2 data-i18n="eraseTitle">Erase all data</h2>
+    <p class="hint" data-i18n="eraseLabel">Type DELETE to erase all presets and history.</p>
+    <div class="row">
+      <input id="eraseInput" type="text" placeholder="DELETE" autocomplete="off">
+      <button id="eraseBtn" class="btn danger" type="button" data-i18n="eraseBtn">Erase all</button>
+    </div>
+    <p id="eraseWrong" class="err" hidden></p>
+    <p id="erasedMsg" class="ok" hidden></p>
+  </section>
+
+  <!-- ============ GUIDE TAB ============ -->
+  <section id="tab-guide" class="panel" hidden>
+    <h2 data-i18n="guideTitle">How to use dice notation</h2>
+    <ol id="guideList" class="guide-list"></ol>
+  </section>
+</main>
+
+<footer class="wrap">
+  <p id="footerText" class="foot"></p>
+</footer>
+
+<script src="js/logic.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
